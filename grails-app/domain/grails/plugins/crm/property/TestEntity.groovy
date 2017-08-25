@@ -23,5 +23,5 @@ class TestEntity {
 
     String name
 
-    static taggable = true
+    static dynamicProperties = true
 }

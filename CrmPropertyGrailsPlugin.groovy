@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import org.codehaus.groovy.grails.commons.GrailsClassUtils
+
 class CrmPropertyGrailsPlugin {
     def groupId = ""
     def version = "2.4.0-SNAPSHOT"
@@ -44,5 +46,54 @@ This is a "headless" plugin. User interface for property support is provided by 
             description "User defined properties"
             hidden true
         }
+    }
+
+    def doWithDynamicMethods = { ctx ->
+        def crmPropertyService = ctx.getBean("crmPropertyService")
+        for (domainClass in application.domainClasses) {
+            def dynamicProperty = getDynamicProperty(domainClass)
+            if (dynamicProperty) {
+                addDomainMethods(domainClass.clazz.metaClass, crmPropertyService)
+            }
+        }
+    }
+
+    def onChange = { event ->
+        def ctx = event.ctx
+        if (event.source && ctx && event.application) {
+            def service = ctx.getBean('crmPropertyService')
+            // enhance domain classes with dynamic properties
+            if ((event.source instanceof Class) && application.isDomainClass(event.source)) {
+                def domainClass = application.getDomainClass(event.source.name)
+                if (getDynamicProperty(domainClass)) {
+                    addDomainMethods(domainClass.metaClass, service)
+                }
+            }
+        }
+    }
+
+    private void addDomainMethods(MetaClass mc, def service) {
+        mc.setDynamicProperty = { String propertyName, Object value ->
+            service.setValue(delegate, propertyName, value)
+        }
+        mc.getDynamicProperty = { String propertyName ->
+            service.getValue(delegate, propertyName)
+        }
+        mc.getDynamicProperties = { ->
+            service.getValues(delegate)
+        }
+        mc.deleteDynamicProperty = { String propertyName ->
+            service.deleteValue(delegate, propertyName)
+            return delegate
+        }
+        mc.static.find = { String propertyName, Object[] args ->
+            service.find(delegate, *args)
+        }
+    }
+
+    public static final String DYNAMIC_PROPERTY_NAME = "dynamicProperties";
+
+    private getDynamicProperty(domainClass) {
+        GrailsClassUtils.getStaticPropertyValue(domainClass.clazz, DYNAMIC_PROPERTY_NAME)
     }
 }

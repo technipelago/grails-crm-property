@@ -5,10 +5,12 @@ class CrmPropertySpec extends grails.test.spock.IntegrationSpec {
     def crmPropertyService
 
     def "test string value"() {
+        given:
+        def cfg = crmPropertyService.createConfig(TestEntity, "Test")
+
         when:
         def entity = new TestEntity(name: "Test").save(failOnError: true)
-        def cfg = crmPropertyService.createConfig("Test")
-        def value = crmPropertyService.setValue(cfg, entity, "foo")
+        def value = crmPropertyService.setValue(entity, "test", "foo")
 
         then:
         value != null
@@ -16,10 +18,12 @@ class CrmPropertySpec extends grails.test.spock.IntegrationSpec {
     }
 
     def "test numeric value"() {
+        given:
+        def cfg = crmPropertyService.createConfig(TestEntity, "Test")
+
         when:
         def entity = new TestEntity(name: "Test").save(failOnError: true)
-        def cfg = crmPropertyService.createConfig("Test")
-        def value = crmPropertyService.setValue(cfg, entity, 42)
+        def value = crmPropertyService.setValue(entity, "test", 42)
 
         then:
         value != null
@@ -27,14 +31,30 @@ class CrmPropertySpec extends grails.test.spock.IntegrationSpec {
     }
 
     def "test date value"() {
+        given:
+        def cfg = crmPropertyService.createConfig(TestEntity, "Test")
+
         when:
         def entity = new TestEntity(name: "Test").save(failOnError: true)
-        def cfg = crmPropertyService.createConfig("Test")
         def date = new Date()
-        def value = crmPropertyService.setValue(cfg, entity, date)
+        def value = crmPropertyService.setValue(entity, "test", date)
 
         then:
         value != null
         value.value == date
+    }
+
+    def "test domain methods"() {
+        given:
+        def cfg = crmPropertyService.createConfig(TestEntity, "Test")
+
+        when:
+        def entity = new TestEntity(name: "Test").save(failOnError: true)
+        def value = entity.setDynamicProperty("test", "foo")
+
+        then:
+        value != null
+        value.value == "foo"
+        entity.getDynamicProperty("test") == "foo"
     }
 }
