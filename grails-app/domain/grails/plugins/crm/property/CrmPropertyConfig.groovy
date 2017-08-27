@@ -16,17 +16,17 @@ class CrmPropertyConfig extends CrmLookupEntity {
     //String icon -> not normally used?
     //String description -> help (hover) text
 
-    String clazz
+    String entityName
     int type = TYPE_STRING
 
     static constraints = {
-        clazz(maxSize: 80, nullable: false, unique: ['tenantId', 'param'])
+        entityName(maxSize: 80, nullable: false, unique: ['tenantId', 'param'])
         type(inList: [TYPE_STRING, TYPE_NUMERIC, TYPE_DATE])
     }
 
     static mapping = {
         tenantId index: 'crm_dyn_prop_idx'
-        clazz index: 'crm_dyn_prop_idx'
+        entityName index: 'crm_dyn_prop_idx'
         name index: 'crm_dyn_prop_idx'
         sort 'orderIndex'
         cache usage: 'nonstrict-read-write'
@@ -42,7 +42,7 @@ class CrmPropertyConfig extends CrmLookupEntity {
                         max "orderIndex"
                     }
                     eq('tenantId', tenant)
-                    eq('clazz', this.clazz)
+                    eq('entityName', this.entityName)
                 }
             }
             orderIndex = mx ? mx + 1 : 1

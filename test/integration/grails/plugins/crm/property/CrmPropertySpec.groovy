@@ -4,9 +4,24 @@ class CrmPropertySpec extends grails.test.spock.IntegrationSpec {
 
     def crmPropertyService
 
+    def "test entity name"() {
+        expect:
+        crmPropertyService.createConfig(TestEntity, "Test").entityName == 'testEntity'
+    }
+
+    def "test configs"() {
+        when:
+        crmPropertyService.createStringConfig(TestEntity, "Test 1")
+        crmPropertyService.createStringConfig(TestEntity, "Test 2")
+        crmPropertyService.createStringConfig(TestEntity, "Test 3")
+
+        then:
+        crmPropertyService.getConfigs(TestEntity).size() == 3
+    }
+
     def "test string value"() {
         given:
-        def cfg = crmPropertyService.createConfig(TestEntity, "Test")
+        crmPropertyService.createStringConfig(TestEntity, "Test")
 
         when:
         def entity = new TestEntity(name: "Test").save(failOnError: true)
@@ -19,7 +34,7 @@ class CrmPropertySpec extends grails.test.spock.IntegrationSpec {
 
     def "test numeric value"() {
         given:
-        def cfg = crmPropertyService.createConfig(TestEntity, "Test")
+        crmPropertyService.createNumberConfig(TestEntity, "Test")
 
         when:
         def entity = new TestEntity(name: "Test").save(failOnError: true)
@@ -32,7 +47,7 @@ class CrmPropertySpec extends grails.test.spock.IntegrationSpec {
 
     def "test date value"() {
         given:
-        def cfg = crmPropertyService.createConfig(TestEntity, "Test")
+        crmPropertyService.createDateConfig(TestEntity, "Test")
 
         when:
         def entity = new TestEntity(name: "Test").save(failOnError: true)
@@ -46,7 +61,7 @@ class CrmPropertySpec extends grails.test.spock.IntegrationSpec {
 
     def "test domain methods"() {
         given:
-        def cfg = crmPropertyService.createConfig(TestEntity, "Test")
+        crmPropertyService.createStringConfig(TestEntity, "Test")
 
         when:
         def entity = new TestEntity(name: "Test").save(failOnError: true)

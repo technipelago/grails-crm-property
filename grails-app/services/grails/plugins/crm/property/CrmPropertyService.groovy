@@ -1,17 +1,34 @@
 package grails.plugins.crm.property
 
 import grails.plugins.crm.core.TenantUtils
+import grails.util.GrailsNameUtils
 import groovy.transform.CompileStatic
 import org.apache.commons.lang.StringUtils
+import org.codehaus.groovy.grails.commons.GrailsClassUtils
 
 class CrmPropertyService {
 
+    def grailsApplication
     def crmCoreService
 
-    CrmPropertyConfig createConfig(Class domainClass, String name, String label = null) {
-        def cfg = new CrmPropertyConfig(clazz: domainClass.name, param: paramify(name), name: label ?: StringUtils.capitalize(name))
-        cfg.save(failOnError: true)
-        cfg
+    List getPropertyDomainClasses() {
+        grailsApplication.domainClasses.findAll { getDynamicProperty(it) }
+    }
+
+    CrmPropertyConfig createStringConfig(Class domainClass, String name, String label = null) {
+        createConfig(domainClass, name, CrmPropertyConfig.TYPE_STRING, label)
+    }
+
+    CrmPropertyConfig createNumberConfig(Class domainClass, String name, String label = null) {
+        createConfig(domainClass, name, CrmPropertyConfig.TYPE_NUMERIC, label)
+    }
+
+    CrmPropertyConfig createDateConfig(Class domainClass, String name, String label = null) {
+        createConfig(domainClass, name, CrmPropertyConfig.TYPE_DATE, label)
+    }
+
+    CrmPropertyConfig createConfig(Class domainClass, String name, Integer type = CrmPropertyConfig.TYPE_STRING, String label = null) {
+        createConfig(entityName: GrailsNameUtils.getPropertyName(domainClass), param: paramify(name), type: type, name: label ?: StringUtils.capitalize(name))
     }
 
     CrmPropertyConfig createConfig(Map<String, Object> opts) {
@@ -21,9 +38,13 @@ class CrmPropertyService {
     }
 
     List<CrmPropertyConfig> getConfigs(Class domainClass) {
-        CrmPropertyConfig.createCriteria().get() {
+        getConfigs(GrailsNameUtils.getPropertyName(domainClass))
+    }
+
+    List<CrmPropertyConfig> getConfigs(String entityName) {
+        CrmPropertyConfig.createCriteria().list() {
             eq('tenantId', TenantUtils.tenant)
-            eq('clazz', domainClass.name)
+            eq('entityName', entityName)
             order 'orderIndex', 'asc'
         }
     }
@@ -31,7 +52,7 @@ class CrmPropertyService {
     CrmPropertyConfig getConfig(Class domainClass, String name) {
         CrmPropertyConfig.createCriteria().get() {
             eq('tenantId', TenantUtils.tenant)
-            eq('clazz', domainClass.name)
+            eq('entityName', GrailsNameUtils.getPropertyName(domainClass))
             eq('param', name)
         }
     }
@@ -83,6 +104,12 @@ class CrmPropertyService {
         []
     }
 
+    public static final String DYNAMIC_PROPERTY_NAME = "dynamicProperties";
+
+    private getDynamicProperty(domainClass) {
+        GrailsClassUtils.getStaticPropertyValue(domainClass.clazz, DYNAMIC_PROPERTY_NAME)
+    }
+
     private CrmPropertyValue getValueInternal(Object reference, String name) {
         def instance = crmCoreService.isDomainClass(reference) ? reference : crmCoreService.getReference(reference.toString())
         if (instance == null) {
@@ -93,7 +120,7 @@ class CrmPropertyService {
             eq('ref', identifier)
             cfg {
                 eq('tenantId', TenantUtils.tenant)
-                eq('clazz', instance.getClass().getName())
+                eq('entityName', GrailsNameUtils.getPropertyName(instance.getClass()))
                 eq('param', name)
             }
         }
