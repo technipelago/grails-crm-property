@@ -3,12 +3,12 @@
 <html>
 <head>
     <meta name="layout" content="main">
-    <title><g:message code="crmProperty.list.title"/></title>
+    <title><g:message code="crmProperty.index.title"/></title>
 </head>
 
 <body>
 
-<crm:header title="crmProperty.list.title"/>
+<crm:header title="crmProperty.index.title"/>
 
 <table class="table table-striped">
     <thead>
@@ -34,10 +34,42 @@
 
         <tr>
             <td>
-                <g:form class="form-actions btn-toolbar">
+                <g:form>
                     <input type="hidden" name="type" value="${entity}"/>
-                    <crm:button type="link" group="true" action="create" visual="success" icon="icon-file icon-white"
-                                label="crmProperty.button.create.label" permission="crmProperty:create"/>
+
+                    <div class="btn-group">
+                        <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                            <g:message code="crmProperty.button.create.label"/>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <g:link action="create" params="${[entity: entity, type: 'string']}">
+                                    <g:message code="crmProperty.create.string.label"/>
+                                </g:link>
+                            </li>
+                            <li>
+                                <g:link action="create" params="${[entity: entity, type: 'number']}">
+                                    <g:message code="crmProperty.create.number.label"/>
+                                </g:link>
+                            </li>
+                            <li>
+                                <g:link action="create" params="${[entity: entity, type: 'date']}">
+                                    <g:message code="crmProperty.create.date.label"/>
+                                </g:link>
+                            </li>
+                            <li>
+                                <g:link action="create" params="${[entity: entity, type: 'checkbox']}">
+                                    <g:message code="crmProperty.create.checkbox.label"/>
+                                </g:link>
+                            </li>
+                            <li>
+                                <g:link action="create" params="${[entity: entity, type: 'radio']}">
+                                    <g:message code="crmProperty.create.radio.label"/>
+                                </g:link>
+                            </li>
+                        </ul>
+                    </div>
                 </g:form>
             </td>
         </tr>

@@ -19,8 +19,18 @@ class CrmPropertyController {
         return [keys: result.keySet().sort(), configs: result]
     }
 
-    def create(String type) {
-        def cfg = new CrmPropertyConfig(tenantId: TenantUtils.tenant, entityName: type)
+    def create(String entity, String type) {
+        def cfg = new CrmPropertyConfig(tenantId: TenantUtils.tenant, entityName: entity, type: getType(type))
+        if (request.post) {
+            bindData(cfg, params, [exclude: ['entity', 'type']])
+            if (cfg.save()) {
+                redirect action: 'index'
+                return
+            }
+        } else {
+            cfg.validate()
+            cfg.clearErrors()
+        }
         [bean: cfg]
     }
 
@@ -36,6 +46,21 @@ class CrmPropertyController {
             redirect action: "index"
         } else {
             response.sendError(404)
+        }
+    }
+
+    private int getType(String type) {
+        switch (type) {
+            case 'string':
+            case 'text':
+                return CrmPropertyConfig.TYPE_STRING
+            case 'numeric':
+            case 'number':
+                return CrmPropertyConfig.TYPE_NUMERIC
+            case 'date':
+                return CrmPropertyConfig.TYPE_DATE
+            default:
+                throw new IllegalArgumentException("Unsupported property type: $type")
         }
     }
 }

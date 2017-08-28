@@ -32,6 +32,31 @@ class CrmPropertyConfig extends CrmLookupEntity {
         cache usage: 'nonstrict-read-write'
     }
 
+    static transients = ['date', 'numeric', 'text', 'typeName']
+
+    transient boolean isDate() {
+        this.type == TYPE_DATE
+    }
+
+    transient boolean isNumeric() {
+        this.type == TYPE_NUMERIC
+    }
+
+    transient boolean isText() {
+        this.type == TYPE_STRING
+    }
+
+    transient String getTypeName() {
+        switch(this.type) {
+            case TYPE_NUMERIC:
+                return 'numeric'
+            case TYPE_DATE:
+                return 'date'
+            default:
+                return 'string'
+        }
+    }
+
     def beforeValidate() {
         if (orderIndex == 0) {
             def tenant = TenantUtils.getTenant()
