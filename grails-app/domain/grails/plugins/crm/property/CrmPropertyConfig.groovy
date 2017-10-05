@@ -18,10 +18,14 @@ class CrmPropertyConfig extends CrmLookupEntity {
 
     String entityName
     int type = TYPE_STRING
+    Integer minLength
+    Integer maxLength
 
     static constraints = {
         entityName(maxSize: 80, nullable: false, unique: ['tenantId', 'param'])
         type(inList: [TYPE_STRING, TYPE_NUMERIC, TYPE_DATE])
+        minLength(nullable: true)
+        maxLength(nullable: true)
     }
 
     static mapping = {

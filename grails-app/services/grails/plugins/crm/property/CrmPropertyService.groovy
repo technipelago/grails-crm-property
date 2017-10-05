@@ -1,10 +1,14 @@
 package grails.plugins.crm.property
 
+import grails.events.Listener
 import grails.plugins.crm.core.TenantUtils
 import grails.util.GrailsNameUtils
 import groovy.transform.CompileStatic
 import org.apache.commons.lang.StringUtils
 import org.codehaus.groovy.grails.commons.GrailsClassUtils
+import org.grails.plugin.platform.events.EventMessage
+
+import java.text.SimpleDateFormat
 
 class CrmPropertyService {
 
@@ -141,12 +145,31 @@ class CrmPropertyService {
     }
 
     private void bind(CrmPropertyValue prop, Object value) {
-        if (value instanceof Date) {
-            prop.dateValue = value
-        } else if (value instanceof Number) {
-            prop.numValue = value.doubleValue()
+        def config = prop.cfg
+        if (config.isDate()) {
+            if (value instanceof Date) {
+                prop.dateValue = value
+            } else {
+                def dateFormat = new SimpleDateFormat('yyyy-MM-dd')
+                prop.dateValue = dateFormat.parse(value.toString())
+            }
+        } else if (config.isNumeric()) {
+            prop.numValue = Double.valueOf(value.toString())
         } else {
             prop.stringValue = value.toString()
+        }
+    }
+
+    @Listener(namespace = '*', topic = 'bind')
+    def bindData(EventMessage<Map> event) {
+        def ns = event.namespace
+        def values = event.data.params?.get('property')
+        def bean = event.data.bean ?: event.data[ns]
+        if(log.isDebugEnabled()) {
+            log.debug "Binding user defined properties for $ns $values"
+        }
+        values.each { k, v ->
+            setValue(bean, k, v)
         }
     }
 }

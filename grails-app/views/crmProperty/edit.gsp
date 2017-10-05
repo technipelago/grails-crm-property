@@ -3,12 +3,12 @@
 <head>
     <meta name="layout" content="main">
     <g:set var="entityName" value="${bean.entityName}"/>
-    <title><g:message code="crmProperty.create.title"/></title>
+    <title><g:message code="crmProperty.edit.title" args="${[bean, entityName]}"/></title>
 </head>
 
 <body>
 
-<crm:header title="crmProperty.create.title" subtitle="${message(code: entityName + '.label', default: entityName)}"
+<crm:header title="crmProperty.edit.title" subtitle="${message(code: entityName + '.label', default: entityName)}"
             args="${[bean, entityName]}"/>
 
 <g:hasErrors bean="${bean}">
@@ -22,10 +22,9 @@
     </crm:alert>
 </g:hasErrors>
 
-<g:form action="create">
+<g:form action="edit">
 
-    <input type="hidden" name="entity" value="${entityName}"/>
-    <input type="hidden" name="type" value="${bean.typeName}"/>
+    <input type="hidden" name="id" value="${bean.id}"/>
 
     <div class="control-group">
         <label class="control-label">
@@ -33,7 +32,7 @@
         </label>
 
         <div class="controls">
-            <g:textField name="name" value="${bean.name}" class="span6" autofocus=""/>
+            <g:textField name="name" value="${bean.name}" class="span6"/>
         </div>
     </div>
 
@@ -67,28 +66,30 @@
         </div>
     </div>
 
-    <div class="control-group">
-        <label class="control-label">
-            <g:message code="crmPropertyConfig.text.minLength.label"/>
-        </label>
+    <g:if test="${bean.isText()}">
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmPropertyConfig.text.minLength.label"/>
+            </label>
 
-        <div class="controls">
-            <g:textField name="minLength" value="${bean.minLength}" class="span2"/>
+            <div class="controls">
+                <g:textField name="minLength" value="${bean.minLength}" class="span2"/>
+            </div>
         </div>
-    </div>
 
-    <div class="control-group">
-        <label class="control-label">
-            <g:message code="crmPropertyConfig.text.maxLength.label"/>
-        </label>
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmPropertyConfig.text.maxLength.label"/>
+            </label>
 
-        <div class="controls">
-            <g:textField name="maxLength" value="${bean.maxLength}" class="span2"/>
+            <div class="controls">
+                <g:textField name="maxLength" value="${bean.maxLength}" class="span2"/>
+            </div>
         </div>
-    </div>
+    </g:if>
 
     <div class="form-actions">
-        <crm:button visual="success" icon="icon-ok icon-white" label="crmProperty.button.save.label"/>
+        <crm:button visual="warning" icon="icon-ok icon-white" label="crmProperty.button.update.label"/>
         <crm:button type="link" action="index" icon="icon-remove" label="crmProperty.button.back.label"/>
     </div>
 </g:form>
