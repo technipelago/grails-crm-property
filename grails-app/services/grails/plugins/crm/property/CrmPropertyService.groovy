@@ -6,14 +6,15 @@ import grails.util.GrailsNameUtils
 import groovy.transform.CompileStatic
 import org.apache.commons.lang.StringUtils
 import org.codehaus.groovy.grails.commons.GrailsClassUtils
+import org.grails.databinding.SimpleMapDataBindingSource
 import org.grails.plugin.platform.events.EventMessage
-
-import java.text.SimpleDateFormat
+import org.springframework.validation.Errors
 
 class CrmPropertyService {
 
     def grailsApplication
     def crmCoreService
+    def grailsWebDataBinder
 
     List getPropertyDomainClasses() {
         grailsApplication.domainClasses.findAll { getDynamicProperty(it) }
@@ -93,6 +94,7 @@ class CrmPropertyService {
         }
         bind(prop, value)
         prop.save()
+        return prop
     }
 
     boolean deleteValue(Object reference, String name) {
@@ -144,20 +146,20 @@ class CrmPropertyService {
         param
     }
 
-    private void bind(CrmPropertyValue prop, Object value) {
+    private Errors bind(CrmPropertyValue prop, Object value) {
         def config = prop.cfg
+        def params = [:]
         if (config.isDate()) {
-            if (value instanceof Date) {
-                prop.dateValue = value
-            } else {
-                def dateFormat = new SimpleDateFormat('yyyy-MM-dd')
-                prop.dateValue = dateFormat.parse(value.toString())
-            }
+            params.dateValue = value
         } else if (config.isNumeric()) {
-            prop.numValue = Double.valueOf(value.toString())
+            params.numValue = value
         } else {
-            prop.stringValue = value.toString()
+            params.stringValue = value
         }
+
+        grailsWebDataBinder.bind(prop, params as SimpleMapDataBindingSource)
+
+        return prop.errors
     }
 
     @Listener(namespace = '*', topic = 'bind')
@@ -165,11 +167,19 @@ class CrmPropertyService {
         def ns = event.namespace
         def values = event.data.params?.get('property')
         def bean = event.data.bean ?: event.data[ns]
-        if(log.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             log.debug "Binding user defined properties for $ns $values"
         }
         values.each { k, v ->
-            setValue(bean, k, v)
+            try {
+                def prop = setValue(bean, k, v)
+                if (prop.hasErrors()) {
+                    bean.errors.reject('default.invalid.property.message', [k, bean.class, v].toArray(), "Custom property [{0}] of class [{1}] with value [{2}] does not pass custom validation")
+                }
+            } catch (Exception e) {
+                log.debug(e.message)
+                bean.errors.reject('default.invalid.property.message', [k, bean.class, v].toArray(), "Custom property [{0}] of class [{1}] with value [{2}] does not pass custom validation")
+            }
         }
     }
 }

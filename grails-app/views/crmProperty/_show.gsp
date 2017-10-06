@@ -1,9 +1,11 @@
-<dl>
+<dl class="crm-property-list">
     <g:each in="${result}" var="cfg">
         <g:set var="dynamicValue" value="${bean.getDynamicProperty(cfg.param)}"/>
-        <dt>${cfg.name}</dt>
-        <dd>
-            <crm:propertyValue bean="${bean}" cfg="${cfg}"/>
-        </dd>
+        <g:if test="${dynamicValue}">
+            <dt>${cfg.name}</dt>
+            <dd data-property="${cfg.param}">
+                <crm:propertyValue bean="${bean}" cfg="${cfg}"/>
+            </dd>
+        </g:if>
     </g:each>
 </dl>
