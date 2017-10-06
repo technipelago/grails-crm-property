@@ -1,6 +1,6 @@
-= GR8 CRM - Dynamic Properties Plugin
+= GR8 CRM - Custom Properties Plugin
 Göran Ehrsson <goran@technipelago.se>
-:description: Official documentation for the GR8 CRM Dynamic Properties Plugin
+:description: Official documentation for the GR8 CRM Custom Properties Plugin
 :keywords: groovy, grails, crm, gr8crm, documentation
 :toc:
 :numbered:
@@ -30,9 +30,47 @@ The {gr8crm} "Ecosystem" currently contains over 40 Grails plugins. For a comple
 Each {gr8crm} plugin defines a http://martinfowler.com/bliki/BoundedContext.html[Bounded Context]
 that focus on one specific domain, for example *contact*, *project* or *document*.
 
-== Dynamic Properties Plugin
+== Custom Properties Plugin
 
-This plugin provides...
+This plugin makes is possible to an application super-user to define custom properties for domain classes.
+
+== Add custom properties
+
+Two user-facing views are provided by the plugin. One displayed in the show-contact view and one displayed in the edit-contact view.
+The views are not added automatically but you can easily add them in BootStrap.groovy for your application.
+
+The following code snippet adds custom property views to the contact views (company, person, etc.)
+
+[source,groovy]
+----
+class BootStrap {
+
+    def crmPluginService
+    def crmCoreService
+    def crmPropertyService
+
+    def init = { servletContext ->
+        // Add custom property tab to show contact page.
+        crmPluginService.registerView('crmContact', 'show', 'tabs',
+                [id: "props", index: 120, label: "Properties", template: '/crmProperty/show', plugin: "crm-property", model: {
+                    def rid = crmCoreService.getReferenceIdentifier(crmContact)
+                    def result = crmPropertyService.getConfigs('crmContact')
+                    def values = crmPropertyService.getValues(crmContact)
+                    return [bean: crmContact, reference: rid, result: result, totalCount: values.size()]
+                }]
+        )
+        // Add custom property tab to edit contact page.
+        crmPluginService.registerView('crmContact', 'edit', 'tabs',
+                [id: "props", index: 120, label: "Properties", template: '/crmProperty/edit', plugin: "crm-property", model: {
+                    def rid = crmCoreService.getReferenceIdentifier(crmContact)
+                    def result = crmPropertyService.getConfigs('crmContact')
+                    def values = crmPropertyService.getValues(crmContact)
+                    return [bean: crmContact, reference: rid, result: result, totalCount: values.size()]
+                }]
+        )
+    }
+}
+----
 
 == Changes
 
