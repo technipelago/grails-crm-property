@@ -1,4 +1,4 @@
-# GR8 CRM - User Defined Properties Plugin
+# GR8 CRM - Custom Properties Plugin
 
 CRM = [Customer Relationship Management](http://en.wikipedia.org/wiki/Customer_relationship_management)
 
@@ -10,9 +10,9 @@ With CRM we mean features like:
 - Task/Todo Lists
 - Project Management
 
-## User Defined Properties Plugin
+## Custom Properties Plugin
 
-The property plugin provides functions to add user defined properties to domain instances.
+The property plugin provides functions and user interface to add user defined properties to domain instances.
 
 ### Documentation
 
