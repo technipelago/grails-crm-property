@@ -1,8 +1,5 @@
 package grails.plugins.crm.property
 
-import grails.plugins.crm.core.TenantEntity
-
-@TenantEntity
 class CrmPropertyValue {
     String ref
     String stringValue
