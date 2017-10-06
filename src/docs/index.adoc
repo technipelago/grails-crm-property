@@ -30,9 +30,10 @@ The {gr8crm} "Ecosystem" currently contains over 40 Grails plugins. For a comple
 Each {gr8crm} plugin defines a http://martinfowler.com/bliki/BoundedContext.html[Bounded Context]
 that focus on one specific domain, for example *contact*, *project* or *document*.
 
-== Custom Properties Plugin
+=== Custom Properties Plugin
 
-This plugin makes is possible to an application super-user to define custom properties for domain classes.
+This plugin makes is possible for an application super-user to define custom properties for domain classes.
+A custom property can be of type *string*, *number* and *date*.
 
 == Add custom properties
 
@@ -71,6 +72,34 @@ class BootStrap {
     }
 }
 ----
+
+== CrmPropertyService
+
+The `crmPropertyService` bean provides methods for configuring and working with custom property values.
+
+[source,groovy]
+----
+crmPropertyService.createStringConfig(CrmContact, "team", "Team name")
+crmPropertyService.createNumberConfig(CrmContact, "weight", "Weight (kg)")
+crmPropertyService.createDateConfig(CrmContact, "birthDate", "Birth date")
+----
+
+
+== Instance methods
+
+Each domain class that has a static property called `customProperties` will have instance methods for setting and getting custom property values.
+
+[source,groovy]
+----
+def person = CrmContact.findByName("Mr Groovy")
+
+person.setCustomProperty('team', 'Grails')
+person.setCustomProperty('weight', 82)
+person.setCustomProperty('birthDate', '1992-05-23')
+
+
+----
+
 
 == Changes
 
