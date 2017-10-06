@@ -196,4 +196,43 @@ class CrmPropertyService {
             }
         }
     }
+
+    @Listener(namespace = "crmTenant", topic = "requestDelete")
+    Map requestDeleteTenant(event) {
+        def tenant = event.id
+        def count = CrmPropertyConfig.countByTenantId(tenant)
+        return count ? [namespace: "crmProperty", topic: "deleteTenant"] : null
+    }
+
+    @Listener(namespace = "crmProperty", topic = "deleteTenant")
+    def deleteTenant(event) {
+        def tenant = event.id
+
+        // Delete all property values.
+        def result = CrmPropertyValue.createCriteria().list() {
+            cfg {
+                eq('tenantId', tenant)
+            }
+        }
+        result*.delete()
+
+        // Delete all property configurations.
+        result = CrmPropertyConfig.findAllByTenantId(tenant)
+        int n = result.size()
+        result*.delete()
+
+        log.warn("Deleted $n custom properties in tenant $tenant")
+    }
+
+    @Listener(namespace = "*", topic = "deleted")
+    def cleanupProperties(EventMessage<Map> event) {
+        Map data = event.getData()
+        if (data.id) {
+            def ref = "${event.namespace}@${data.id}".toString()
+            CrmPropertyValue.findAllByRef(ref)*.delete()
+            if (log.isDebugEnabled()) {
+                log.debug "Deleted all custom properties for $ref"
+            }
+        }
+    }
 }
