@@ -62,8 +62,9 @@ class CrmPropertyService {
         }
     }
 
-    List<Map> getValues(def reference) {
+    Map<CrmPropertyConfig, Object> getValues(def reference) {
         String identifier = crmCoreService.getReferenceIdentifier(reference)
+        Map<CrmPropertyConfig, Object> values = [:]
         List<CrmPropertyValue> result = CrmPropertyValue.createCriteria().list() {
             eq('ref', identifier)
             cfg {
@@ -71,7 +72,10 @@ class CrmPropertyService {
                 order 'orderIndex', 'asc'
             }
         }
-        result.collect { [(it.param): it.value] }
+        for (value in result) {
+            values[value.cfg] = value.getValue()
+        }
+        return values
     }
 
     def getValue(Object reference, String name) {
