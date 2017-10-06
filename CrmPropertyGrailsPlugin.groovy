@@ -28,12 +28,11 @@ class CrmPropertyGrailsPlugin {
             "src/groovy/grails/plugins/crm/property/PropertyTestSecurityDelegate.groovy",
             "grails-app/views/error.gsp"
     ]
-    def title = "GR8 CRM Property Service"
+    def title = "GR8 CRM Custom Properties"
     def author = "Goran Ehrsson"
     def authorEmail = "goran@technipelago.se"
     def description = '''\
 A GR8 CRM plugin that provides user defined properties on any domain instance.
-This is a "headless" plugin. User interface for property support is provided by the crm-property-ui plugin.
 '''
     def documentation = "http://gr8crm.github.io/plugins/crm-property/"
     def license = "APACHE"
@@ -43,7 +42,7 @@ This is a "headless" plugin. User interface for property support is provided by 
 
     def features = {
         crmProperty {
-            description "User defined properties"
+            description "Custom properties"
             hidden true
         }
     }
@@ -51,8 +50,8 @@ This is a "headless" plugin. User interface for property support is provided by 
     def doWithDynamicMethods = { ctx ->
         def crmPropertyService = ctx.getBean("crmPropertyService")
         for (domainClass in application.domainClasses) {
-            def dynamicProperty = getDynamicProperty(domainClass)
-            if (dynamicProperty) {
+            def customProperty = getCustomProperty(domainClass)
+            if (customProperty) {
                 addDomainMethods(domainClass.clazz.metaClass, crmPropertyService)
             }
         }
@@ -62,10 +61,10 @@ This is a "headless" plugin. User interface for property support is provided by 
         def ctx = event.ctx
         if (event.source && ctx && event.application) {
             def service = ctx.getBean('crmPropertyService')
-            // enhance domain classes with dynamic properties
+            // enhance domain classes with custom properties
             if ((event.source instanceof Class) && application.isDomainClass(event.source)) {
                 def domainClass = application.getDomainClass(event.source.name)
-                if (getDynamicProperty(domainClass)) {
+                if (getCustomProperty(domainClass)) {
                     addDomainMethods(domainClass.metaClass, service)
                 }
             }
@@ -73,16 +72,16 @@ This is a "headless" plugin. User interface for property support is provided by 
     }
 
     private void addDomainMethods(MetaClass mc, def service) {
-        mc.setDynamicProperty = { String propertyName, Object value ->
+        mc.setCustomProperty = { String propertyName, Object value ->
             service.setValue(delegate, propertyName, value)
         }
-        mc.getDynamicProperty = { String propertyName ->
+        mc.getCustomProperty = { String propertyName ->
             service.getValue(delegate, propertyName)
         }
-        mc.getDynamicProperties = { ->
+        mc.getCustomProperties = { ->
             service.getValues(delegate)
         }
-        mc.deleteDynamicProperty = { String propertyName ->
+        mc.deleteCustomProperty = { String propertyName ->
             service.deleteValue(delegate, propertyName)
             return delegate
         }
@@ -91,9 +90,8 @@ This is a "headless" plugin. User interface for property support is provided by 
         }
     }
 
-    public static final String DYNAMIC_PROPERTY_NAME = "dynamicProperties";
-
-    private getDynamicProperty(domainClass) {
-        GrailsClassUtils.getStaticPropertyValue(domainClass.clazz, DYNAMIC_PROPERTY_NAME)
+    private getCustomProperty(domainClass) {
+        // dynamicProperties is a legacy name used by a deprecated plugin.
+        GrailsClassUtils.getStaticPropertyValue(domainClass.clazz, "dynamicProperties") ?: GrailsClassUtils.getStaticPropertyValue(domainClass.clazz, "customProperties")
     }
 }

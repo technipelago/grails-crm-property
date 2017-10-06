@@ -17,7 +17,7 @@ class CrmPropertyService {
     def grailsWebDataBinder
 
     List getPropertyDomainClasses() {
-        grailsApplication.domainClasses.findAll { getDynamicProperty(it) }
+        grailsApplication.domainClasses.findAll { getCustomProperty(it) }
     }
 
     CrmPropertyConfig createStringConfig(Class domainClass, String name, String label = null) {
@@ -99,7 +99,7 @@ class CrmPropertyService {
             }
             def config = getConfig(instance.getClass(), name)
             if (config == null) {
-                throw new RuntimeException("No dynamic property [$name] configured for [${instance.getClass().getName()}]")
+                throw new RuntimeException("No custom property [$name] configured for [${instance.getClass().getName()}]")
             }
             String identifier = crmCoreService.getReferenceIdentifier(instance)
             prop = new CrmPropertyValue(cfg: config, ref: identifier)
@@ -125,10 +125,8 @@ class CrmPropertyService {
         []
     }
 
-    public static final String DYNAMIC_PROPERTY_NAME = "dynamicProperties";
-
-    private getDynamicProperty(domainClass) {
-        GrailsClassUtils.getStaticPropertyValue(domainClass.clazz, DYNAMIC_PROPERTY_NAME)
+    private getCustomProperty(domainClass) {
+        GrailsClassUtils.getStaticPropertyValue(domainClass.clazz, "dynamicProperties") ?: GrailsClassUtils.getStaticPropertyValue(domainClass.clazz, "customProperties")
     }
 
     private CrmPropertyValue getValueInternal(Object reference, String name) {

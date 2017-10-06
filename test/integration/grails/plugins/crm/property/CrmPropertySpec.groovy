@@ -65,11 +65,11 @@ class CrmPropertySpec extends grails.test.spock.IntegrationSpec {
 
         when:
         def entity = new TestEntity(name: "Test").save(failOnError: true)
-        def value = entity.setDynamicProperty("test", "foo")
+        def value = entity.setCustomProperty("test", "foo")
 
         then:
         value != null
         value.value == "foo"
-        entity.getDynamicProperty("test") == "foo"
+        entity.getCustomProperty("test") == "foo"
     }
 }

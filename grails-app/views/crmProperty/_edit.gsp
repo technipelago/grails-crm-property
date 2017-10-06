@@ -1,4 +1,4 @@
-<r:require modules="datepicker"/>
+<r:require module="datepicker"/>
 <r:script>
     $(document).ready(function() {
         <crm:datepicker/>
