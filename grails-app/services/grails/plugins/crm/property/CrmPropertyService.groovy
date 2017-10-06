@@ -84,6 +84,14 @@ class CrmPropertyService {
 
     CrmPropertyValue setValue(Object reference, String name, Object value) {
         def prop = getValueInternal(reference, name)
+
+        if (value == null || value.toString().trim().length() == 0) {
+            if (prop != null) {
+                prop.delete() // Don't persist null values.
+            }
+            return null
+        }
+
         if (prop == null) {
             def instance = crmCoreService.isDomainClass(reference) ? reference : crmCoreService.getReference(reference.toString())
             if (instance == null) {
@@ -96,8 +104,11 @@ class CrmPropertyService {
             String identifier = crmCoreService.getReferenceIdentifier(instance)
             prop = new CrmPropertyValue(cfg: config, ref: identifier)
         }
+
         bind(prop, value)
+
         prop.save()
+
         return prop
     }
 
@@ -177,7 +188,8 @@ class CrmPropertyService {
         values.each { k, v ->
             try {
                 def prop = setValue(bean, k, v)
-                if (prop.hasErrors()) {
+                // prop can be null if it was removed, so we have to use safe navigation here.
+                if (prop?.hasErrors()) {
                     bean.errors.reject('default.invalid.property.message', [k, bean.class, v].toArray(), "Custom property [{0}] of class [{1}] with value [{2}] does not pass custom validation")
                 }
             } catch (Exception e) {
