@@ -43,7 +43,11 @@ A GR8 CRM plugin that provides user defined properties on any domain instance.
     def features = {
         crmProperty {
             description "Custom properties"
-            hidden true
+            link controller: "crmProperty", action: "index"
+            permissions {
+                user "crmProperty:*"
+                admin "crmProperty:*"
+            }
         }
     }
 
