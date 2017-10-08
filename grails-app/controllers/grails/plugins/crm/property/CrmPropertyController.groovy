@@ -15,8 +15,9 @@ class CrmPropertyController {
         def result = [:]
         for (entity in domainClasses) {
             def name = GrailsNameUtils.getPropertyName(entity.name)
+            def list = result.get(name, [])
             for (cfg in crmPropertyService.getConfigs(name)) {
-                result.get(name, []) << cfg
+                list << cfg
             }
         }
         return [keys: result.keySet().sort(), configs: result]
