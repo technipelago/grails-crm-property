@@ -17,7 +17,7 @@ class CrmPropertyTagLib {
         } else {
             template = '/crmProperty/text'
         }
-        out << g.render(template: template, model: [cfg: cfg, label: cfg.name, name: cfg.param, value: crmPropertyService.getValue(bean, cfg.param)])
+        out << g.render(template: template, model: [cfg: cfg, label: cfg.name, name: cfg.param, help: cfg.description, value: crmPropertyService.getValue(bean, cfg.param)])
     }
 
     def propertyValue = { attrs, body ->

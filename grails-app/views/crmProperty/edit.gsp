@@ -66,6 +66,13 @@
         </div>
     </div>
 
+    <div class="control-group">
+        <label class="checkbox">
+            <g:checkBox name="enabled" value="true" checked="${bean.enabled}"/>
+            <g:message code="crmPropertyConfig.enabled.label"/>
+        </label>
+    </div>
+
     <g:if test="${bean.isText()}">
         <div class="control-group">
             <label class="control-label">

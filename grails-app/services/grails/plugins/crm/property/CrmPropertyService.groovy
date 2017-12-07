@@ -38,6 +38,9 @@ class CrmPropertyService {
 
     CrmPropertyConfig createConfig(Map<String, Object> opts) {
         def cfg = new CrmPropertyConfig(opts)
+        if (!opts.containsKey('enabled')) {
+            cfg.enabled = true
+        }
         cfg.save(failOnError: true)
         cfg
     }

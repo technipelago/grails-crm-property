@@ -25,7 +25,7 @@ class CrmPropertyController {
 
     @Transactional
     def create(String entity, String type) {
-        def cfg = new CrmPropertyConfig(tenantId: TenantUtils.tenant, entityName: entity, type: getType(type))
+        def cfg = new CrmPropertyConfig(tenantId: TenantUtils.tenant, entityName: entity, type: getType(type), enabled: true)
         if (request.post) {
             bindData(cfg, params, [exclude: ['entity', 'type']])
             if (cfg.save()) {

@@ -68,24 +68,33 @@
     </div>
 
     <div class="control-group">
-        <label class="control-label">
-            <g:message code="crmPropertyConfig.text.minLength.label"/>
+        <label class="checkbox">
+            <g:checkBox name="enabled" value="true" checked="${bean.enabled}"/>
+            <g:message code="crmPropertyConfig.enabled.label"/>
         </label>
-
-        <div class="controls">
-            <g:textField name="minLength" value="${bean.minLength}" class="span2"/>
-        </div>
     </div>
 
-    <div class="control-group">
-        <label class="control-label">
-            <g:message code="crmPropertyConfig.text.maxLength.label"/>
-        </label>
+    <g:if test="${bean.isText()}">
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmPropertyConfig.text.minLength.label"/>
+            </label>
 
-        <div class="controls">
-            <g:textField name="maxLength" value="${bean.maxLength}" class="span2"/>
+            <div class="controls">
+                <g:textField name="minLength" value="${bean.minLength}" class="span2"/>
+            </div>
         </div>
-    </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                <g:message code="crmPropertyConfig.text.maxLength.label"/>
+            </label>
+
+            <div class="controls">
+                <g:textField name="maxLength" value="${bean.maxLength}" class="span2"/>
+            </div>
+        </div>
+    </g:if>
 
     <div class="form-actions">
         <crm:button visual="success" icon="icon-ok icon-white" label="crmProperty.button.save.label"/>
