@@ -66,13 +66,6 @@
         </div>
     </div>
 
-    <div class="control-group">
-        <label class="checkbox">
-            <g:checkBox name="enabled" value="true" checked="${bean.enabled}"/>
-            <g:message code="crmPropertyConfig.enabled.label"/>
-        </label>
-    </div>
-
     <g:if test="${bean.isText()}">
         <div class="control-group">
             <label class="control-label">
@@ -94,6 +87,13 @@
             </div>
         </div>
     </g:if>
+
+    <div class="control-group">
+        <label class="checkbox">
+            <g:checkBox name="enabled" value="true" checked="${bean.enabled}"/>
+            <g:message code="crmPropertyConfig.enabled.label"/>
+        </label>
+    </div>
 
     <div class="form-actions">
         <crm:button visual="warning" icon="icon-ok icon-white" label="crmProperty.button.update.label"/>
