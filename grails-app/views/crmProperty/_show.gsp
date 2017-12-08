@@ -7,11 +7,12 @@
     });
 </r:script>
 
+<g:set var="usedKeys" value="${values.collect{it.key.param}}"/>
 <g:set var="enabledProperties" value="${result.findAll { it.enabled }}"/>
-<g:set var="disabledProperties" value="${result.findAll { !it.enabled }}"/>
+<g:set var="disabledProperties" value="${result.findAll { !it.enabled && usedKeys.contains(it.param)}}"/>
 
 <g:set var="columns1"
-       value="${enabledProperties.collate((int) (result.size() / 2 + 0.5))}"/>
+       value="${enabledProperties.collate((int) (enabledProperties.size() / 2 + 0.5))}"/>
 
 <div class="row-fluid">
     <g:each in="${columns1}" var="col">
@@ -31,9 +32,8 @@
 </div>
 
 <g:if test="${disabledProperties}">
-
     <g:set var="columns2"
-           value="${disabledProperties.collate((int) (result.size() / 2 + 0.5))}"/>
+           value="${disabledProperties.collate((int) (disabledProperties.size() / 2 + 0.5))}"/>
 
     <hr/>
 
