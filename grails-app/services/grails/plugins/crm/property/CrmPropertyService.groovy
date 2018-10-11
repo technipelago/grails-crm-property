@@ -61,7 +61,10 @@ class CrmPropertyService {
         CrmPropertyConfig.createCriteria().get() {
             eq('tenantId', TenantUtils.tenant)
             eq('entityName', GrailsNameUtils.getPropertyName(domainClass))
-            eq('param', name)
+            or {
+                eq('param', name)
+                ilike('name', name)
+            }
         }
     }
 
@@ -143,7 +146,10 @@ class CrmPropertyService {
             cfg {
                 eq('tenantId', TenantUtils.tenant)
                 eq('entityName', GrailsNameUtils.getPropertyName(instance.getClass()))
-                eq('param', name)
+                or {
+                    eq('param', name)
+                    ilike('name', name)
+                }
             }
         }
     }
