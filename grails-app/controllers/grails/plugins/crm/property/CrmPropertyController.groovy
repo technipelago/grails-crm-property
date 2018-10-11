@@ -55,7 +55,7 @@ class CrmPropertyController {
                 return
             }
         }
-        [bean: cfg]
+        [bean: cfg, inUse: countValues(cfg)]
     }
 
     @Transactional
@@ -83,5 +83,9 @@ class CrmPropertyController {
             default:
                 throw new IllegalArgumentException("Unsupported property type: $type")
         }
+    }
+
+    private int countValues(CrmPropertyConfig cfg) {
+        CrmPropertyValue.countByCfg(cfg)
     }
 }

@@ -97,6 +97,11 @@
 
     <div class="form-actions">
         <crm:button visual="warning" icon="icon-ok icon-white" label="crmProperty.button.update.label"/>
+        <g:if test="${!inUse}">
+            <crm:button action="delete" label="crmProperty.button.delete.label" icon="icon-trash icon-white"
+                        visual="danger"
+                        confirm="${message(code: 'crmProperty.button.delete.confirm')}"/>
+        </g:if>
         <crm:button type="link" action="index" icon="icon-remove" label="crmProperty.button.back.label"/>
     </div>
 </g:form>
