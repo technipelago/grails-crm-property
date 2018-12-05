@@ -19,7 +19,7 @@
         <div class="span6">
             <dl class="crm-property-list">
                 <g:each in="${col}" var="cfg">
-                    <g:if test="${bean.getCustomProperty(cfg.param)}">
+                    <g:if test="${bean.getCustomProperty(cfg.param) != null}">
                         <dt>${cfg.name}</dt>
                         <dd data-property="${cfg.param}" title="${cfg.description}">
                             <crm:propertyValue bean="${bean}" cfg="${cfg}"/>
