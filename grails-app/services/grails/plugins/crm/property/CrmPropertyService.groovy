@@ -10,7 +10,11 @@ import org.grails.databinding.SimpleMapDataBindingSource
 import org.grails.plugin.platform.events.EventMessage
 import org.springframework.validation.Errors
 
+import java.util.regex.Pattern
+
 class CrmPropertyService {
+
+    private static final Pattern NUMBER_PATTERN = Pattern.compile('(\\d+)')
 
     def grailsApplication
     def crmCoreService
@@ -111,9 +115,15 @@ class CrmPropertyService {
             prop = new CrmPropertyValue(cfg: config, ref: identifier)
         }
 
-        bind(prop, value)
+        value = sanatize(value, prop.cfg)
 
-        prop.save()
+        if (value != null) {
+            bind(prop, value)
+            prop.save()
+        } else if (prop.id) {
+            prop.delete() // Don't persist null values.
+            return null
+        }
 
         return prop
     }
@@ -129,6 +139,15 @@ class CrmPropertyService {
 
     List find(Object... args) {
         []
+    }
+
+    private Object sanatize(Object value, CrmPropertyConfig cfg) {
+        switch (cfg.type) {
+            case CrmPropertyConfig.TYPE_NUMERIC:
+                def matcher = NUMBER_PATTERN.matcher(value.toString())
+                return matcher.find() ? matcher.group(1) : null
+        }
+        return value
     }
 
     private getCustomProperty(domainClass) {
